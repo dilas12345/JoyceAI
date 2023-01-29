@@ -1,0 +1,32 @@
+import React from "react";
+// @material-ui/core components
+import { makeStyles } from "@material-ui/core/styles";
+// @material-ui/icons
+
+// core components
+import GridContainer from "/components/Grid/GridContainer.js";
+import GridItem from "/components/Grid/GridItem.js";
+
+import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/completedStyle.js";
+
+const useStyles = makeStyles(styles);
+
+export default function SectionCompletedExamples() {
+  const classes = useStyles();
+  return (
+    <div className={classes.section}>
+      <div className={classes.container}>
+        <GridContainer justify="center">
+          <GridItem xs={12} sm={12} md={8}>
+            <h2>Something you should know</h2>
+            <h4>
+              This AI might not be completely acurate, 
+              we are working hard to make sure she get the tendency 
+              to make a "continues" conversation.
+            </h4>
+          </GridItem>
+        </GridContainer>
+      </div>
+    </div>
+  );
+}
