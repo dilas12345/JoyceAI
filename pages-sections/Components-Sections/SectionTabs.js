@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -27,9 +27,33 @@ export default function SectionTabs() {
   const [textInput, setTextInput] = useState("");
   const [response, setResponse] = useState();
 
+  const [stored, setStored] = useState("");
+  const [getFeeds, setGetFeeds] = useState("");
+
+  useEffect(()=> {
+    getInitialState();
+  })
+  const getInitialState = () => {
+    var selectedOption = localStorage.getItem( 'InputedData' ) || 1;
+    setGetFeeds(selectedOption)
+    console.log("FetchedState", selectedOption)
+    return {
+        selectedOption: selectedOption
+    };
+  }
+  
+  
+  const setSelectedOption =() => {
+      var options = textInput;
+      localStorage.setItem( 'InputedData', options );
+      setStored( { selectedOption: options } );
+  }
+
+
   const onResponse = async (event) =>{
-    console.log("Hello");
+    // console.log("Hello");
     event.preventDefault();
+    setSelectedOption();
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -58,7 +82,7 @@ export default function SectionTabs() {
     <div className={classes.section}>
       <div className={classes.container}>
         <div id="nav-tabs">
-          <h3>You: {textInput}</h3>
+          <h3>You: {getFeeds}</h3>
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
               <h3>
