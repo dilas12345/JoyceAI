@@ -66,17 +66,23 @@ export default function Header(props) {
       <Button className={classes.title}>{brand}</Button>
     </Link>
   );
+
+  const logoComponent = (
+    <Link href="/components" as="/components" legacyBehavior>
+      <img src="/img/logo.png"/>
+    </Link>
+  )
   return (
     <AppBar className={appBarClasses}>
       <Toolbar className={classes.container}>
-        {leftLinks !== undefined ? brandComponent : null}
+        {leftLinks !== undefined ? logoComponent : null}
         <div className={classes.flex}>
           {leftLinks !== undefined ? (
             <Hidden smDown implementation="css">
               {leftLinks}
             </Hidden>
           ) : (
-            brandComponent
+            logoComponent
           )}
         </div>
         <Hidden smDown implementation="css">
