@@ -1,4 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from 'next/router';
+
+import Session from "../utils/session";
+
 // nodejs library that concatenates classes
 import classNames from "classnames";
 // @material-ui/core components
@@ -31,6 +36,7 @@ const useStyles = makeStyles(styles);
 export default function LandingPage(props) {
   const classes = useStyles();
   const { ...rest } = props;
+
   return (
     <div>
       <Header
@@ -64,7 +70,7 @@ export default function LandingPage(props) {
               <Button
                 color="danger"
                 size="lg"
-                href="/components"
+                href="auth/login"
                 target="_blank"
                 rel="noopener noreferrer"
               >

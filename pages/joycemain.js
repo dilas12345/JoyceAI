@@ -1,11 +1,24 @@
 import Head from "next/head";
-import { useState } from "react";
+import React, { useState } from "react";
+import Router from "next/router";
+import { whoAmI } from "../lib/auth";
+import { removeToken } from "../lib/token";
 import styles from "./index.module.css";
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
   const [response, setResponse] = useState();
 
+  // function redirectToLogin(){
+  //   Router.push("/auth/login");
+  // };
+
+  function handleLogout(e){
+    e.preventDefault();
+
+    removeToken();
+    redirectToLogin();
+  }
 
   const onResponse = async (event) =>{
     console.log("Hello");
@@ -34,6 +47,7 @@ export default function Home() {
     }
   }
 
+  if(user.hasOwnProperty("username")){
   return (
     <div>
       <Head>
@@ -57,4 +71,7 @@ export default function Home() {
       </main>
     </div>
   );
+  }
+
+  return <>Welcome back Buddy. Welcme to your Home</>
 }
