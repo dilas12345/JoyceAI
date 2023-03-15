@@ -30,7 +30,6 @@ import styles from "/styles/jss/nextjs-material-kit/pages/loginPage.js";
 import Router from "next/router";
 import Session from "../../utils/session";
 
-import { removeToken } from "../../lib/token.js";
 
 const useStyles = makeStyles(styles);
 
@@ -40,77 +39,42 @@ export default function LoginPage(props) {
   const [email, setEmail] = useState("");
   console.log(email);
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState(null);
 
   const [session, setSession] = useState('');
 
-  const alert = (message === null) ? <div/> : <div className={`alert alert-danger`} role="alert">{message}</div>;
-
-  async function getSession(req, res) {
-    let session = '';
-      // server-side rendering
-      if (req && req.session) {
-        session = req.session;
-      } else {
-        session = await Session.getSession();
-      }
-   
-    setSession(session);
-  }
-
   useEffect(() => {
-    getSession();
-    removeToken();
-  }, []);
-
-  if (session && session.loggedin) {
-    if (typeof window === 'undefined') {
-      // server-side rendering
-      res.redirect('/components');
-    } else {
-      // client-side rendering
-      Router.push('/components');
+    if (session.loggedin) {
+      Router.push('/')
     }
-    return null;
+  }, [session]);
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value.trim())
   }
 
-  async function handleEmailChange(event) {
-    setEmail(
-      event.target.value.trim()
-    )
-
-    console.log(event);
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value.trim())
   }
-
-  async function handlePasswordChange(event) {
-    setPassword(
-      event.target.value.trim()
-    )
-  };
   
-  async function handleLogin(event){
-    e.preventDefault();
+  const handleLogin = (event) => {
+    event.preventDefault()
 
-    setMessage(null);
+    setMessage(null)
+
     if (!email || !password) {
-      this.setState({
-        message: 'Email/Password is empty!'
-      })
-
+      setMessage('Email/Password is empty!')
       return
-    };
+    }
 
     let data = {
       email: email,
       password: password
     }
 
-    console.log("Email", data)
-
-    fetch('auth/login', {
+    fetch('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
       headers:{
@@ -119,26 +83,22 @@ export default function LoginPage(props) {
     })
     .then(res => res.json())
     .then(response => {
-      console.log(response)
+      console.log("response::", response);
       if (response.loggedin) {
-        Router.push(`/components`)
+        Router.push(`/`)
       } else if (response.message) {
-        setMessage({
-          message: response.message
-        })
+        setMessage(response.message)
       } else {
-        setMessage({
-          message: 'Unknown Error!'
-        })
+        setMessage('Unknown Error!')
       }
     })
     .catch(error => {
       console.error('Error:', error)
-      setMessage({
-        message: 'Request Failed!'
-      })
+      setMessage('Request Failed!')
     })
   }
+
+  const alert = (message === null) ? <div/> : <div className={`alert alert-danger`} role="alert">{message}</div>
   
   setTimeout(function () {
     setCardAnimation("");
@@ -239,6 +199,7 @@ export default function LoginPage(props) {
                       Login
                     </Button>
                   </CardFooter>
+                  {alert}
                   <p style={{marginBottom: 10}} className={classes.divider}>Don't have an account yet? 
                     <Link href="/auth/register">
                       Register

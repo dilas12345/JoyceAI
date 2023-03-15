@@ -52,80 +52,57 @@ export default function RegisterPage(props) {
   //   event.preventDefault();
   // };
 
-  const alert = (message === null) ? <div/> : <div className={`alert alert-danger`} role="alert">{message}</div>;
-
   const [session, setSession] = useState('');
 
-  async function getSession(req, res) {
-    let session = '';
-      // server-side rendering
-      if (req && req.session) {
-        session = req.session;
-      } else {
-        session = await Session.getSession();
-      }
-    
-    setSession(session);
-  }
-
   useEffect(() => {
-    getSession();
-  }, []);
+    if (session && session.loggedin) {
+      Router.push('/');
+    }
+  }, [session]);
 
-  async function handleNameChange(event){
+ const handleNameChange = (event) =>{
     setFullName(
       event.target.value
     )
   }
 
-  async function handleEmailChange(event){
+  const handleEmailChange= (event) =>{
     setEmail(
       event.target.value.trim()
     )
   }
 
-  async function handlePasswordChange(event){
+  const handlePasswordChange= (event) =>{
     setPassword(
       event.target.value.trim()
     )
   }
 
-  async function handleConfirmPasswordChange(event){
+  const handleConfirmPasswordChange= (event) =>{
     setConfirmPassword(
       event.target.value.trim()
     )
   }
-
-  async function handleRegister(event) {
-    event.preventDefault()
-
-    setMessage({
-      message: null
-    })
+  const handleRegister = (event) => {
+    event.preventDefault();
+    setMessage(null);
 
     if (!fullName || !email || !password || !confirmPassword) {
-      setMessage({
-        message: 'All fields are required!'
-      })
-
-      return
+      setMessage('All fields are required!');
+      return;
     }
 
     if (password !== confirmPassword) {
-      setMessage({
-        message: 'Password did not match!'
-      })
-
-      return
+      setMessage('Password did not match!');
+      return;
     }
 
     let data = {
-      fullName: fullName,
-      email: email,
-      password: password
-    }
+      fullName,
+      email,
+      password
+    };
 
-    // console.log(data)
     fetch('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -135,28 +112,22 @@ export default function RegisterPage(props) {
     })
     .then(res => res.json())
     .then(response => {
-      // console.log(response.message)
       if (response.message) {
-        setMessage({
-          message: response.message
-        })
+        setMessage(response.message);
       } else if (response.email) {
-        // console.log(response.email)
-        Router.push('/check-email?email=' + response.email)
+        Router.push('/check-email?email=' + response.email);
       } else {
-        setMessage({
-          message: 'Unknown Error!'
-        })
+        setMessage('Unknown Error!');
       }
     })
     .catch(error => {
-      console.error('Error:', error)
-      setMessage({
-        message: 'Request Failed!'
-      })
-    })
-  }
-  
+      console.error('Error:', error);
+      setMessage('Request Failed!');
+    });
+  };
+
+  const alert = message === null ? <div /> : <div className={`alert alert-danger`} role="alert">{message}</div>;
+
 
   setTimeout(function () {
     setCardAnimation("");
@@ -278,6 +249,7 @@ export default function RegisterPage(props) {
                       Register
                     </Button>
                   </CardFooter>
+                  {alert}
                   <p style={{marginBottom: 10}} className={classes.divider}>Already have an account? 
                     <Link href="/auth/login">
                       Login

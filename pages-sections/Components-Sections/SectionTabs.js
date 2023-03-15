@@ -36,7 +36,7 @@ export default function SectionTabs() {
   const getInitialState = () => {
     var selectedOption = localStorage.getItem( 'InputedData' ) || 1;
     setGetFeeds(selectedOption)
-    console.log("FetchedState", selectedOption)
+    // console.log("FetchedState", selectedOption)
     return {
         selectedOption: selectedOption
     };
@@ -51,7 +51,6 @@ export default function SectionTabs() {
 
 
   const onResponse = async (event) =>{
-    // console.log("Hello");
     event.preventDefault();
     setSelectedOption();
     try {
@@ -63,6 +62,7 @@ export default function SectionTabs() {
         body: JSON.stringify({ text: textInput }),
       });
 
+      // console.log(response);
       const data = await response.json();
       if (response.status !== 200) {
         throw data.error || new Error(`Request failed with status ${response.status}`);

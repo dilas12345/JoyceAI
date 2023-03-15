@@ -7,6 +7,7 @@ export default class {
       credentials: 'same-origin'
     })
     .then(response => {
+      // console.log(response)
       if (response.ok) {
         return Promise.resolve(response.json())
       } else {

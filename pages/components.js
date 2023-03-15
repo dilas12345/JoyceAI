@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React,{ useEffect, useState } from "react";
 
 // nodejs library that concatenates classes
 import classNames from "classnames";
@@ -29,43 +29,45 @@ import SectionLogin from "/pages-sections/Components-Sections/SectionLogin.js";
 import SectionExamples from "../pages-sections/Components-Sections/SectionExamples.js";
 import SectionDownload from "/pages-sections/Components-Sections/SectionDownload.js";
 
+import Router from 'next/router'
+import Session from '../utils/session'
+
 import styles from "/styles/jss/nextjs-material-kit/pages/components.js";
+import { response } from "express";
 
 const useStyles = makeStyles(styles);
 
-export default function Components(props) {
+const  Components= ({props, session}) => {
+
+  const [name, setname] = useState("");
+  const [address, setAddress] = useState("");
+  const [message, setMessage] = useState(null);
+  const [messageStyle, setMessageStyle] = useState(null);
+
   const classes = useStyles();
   const { ...rest } = props;
-  const [textInput, setTextInput] = useState("");
-  const [response, setResponse] = useState();
 
 
-  const onResponse = async (event) =>{
-    console.log("Hello");
-    event.preventDefault();
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: textInput }),
-      });
-
-      const data = await response.json();
-      if (response.status !== 200) {
-        throw data.error || new Error(`Request failed with status ${response.status}`);
+  useEffect(() => {
+    async function checkSession() {
+      if (!session || !session.loggedin) {
+        Router.push('/login')
       }
-
-      console.log("Data Response", data)
-      setResponse(data.response);
-      setTextInput("");
-    } catch(error) {
-      // Consider implementing your own error handling logic here
-      console.error(error);
-      alert(error.message);
     }
-  }
+    checkSession();
+  }, [session, Router]);
+
+  // const getProfile = () => {
+  //   fetch('/auth/profile', {
+  //     credentials: 'include'
+  //   })
+  //   .then(res => res.json())
+  //   .then(response => {
+  //     if(!response.name || !response.address) return
+  //     setName({name: response.name});
+  //     setAddress({address: response.address})
+  //   })
+  // }
 
   return (
     <div>
@@ -122,3 +124,14 @@ export default function Components(props) {
     </div>
   );
 }
+
+Components.getInitialProps = async ({ req }) => {
+  let session = ''
+  if (req && req.session) {
+    session = req.session
+  } else {
+    session = await Session.getSession()
+  }
+  return { session }
+}
+export default Components;
