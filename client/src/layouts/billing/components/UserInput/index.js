@@ -30,7 +30,7 @@ import JoyceAI from "services/api/chat";
 function UserInput() {
 
   const [textInput, setTextInput] = useState("");
-  console.log("Textinput", textInput);
+  // console.log("Textinput", textInput);
 
   const [response, setResponse] = useState();
 
@@ -38,12 +38,12 @@ function UserInput() {
   const [getFeeds, setGetFeeds] = useState("");
 
 
-  const changeHandler = (e) => {
-    setTextInput({
-      ...textInput,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // const changeHandler = (e) => {
+  //   setTextInput({
+  //     ...textInput,
+  //     [e.target.name]: e.target.value,
+  //   });
+  // };
   useEffect(()=> {
     getInitialState();
   })
@@ -98,7 +98,7 @@ function UserInput() {
     <Card id="delete-account">
       <MDBox pt={3} px={2}>
         <MDTypography variant="h6" fontWeight="medium">
-          Your Input
+          Your Input: {getFeeds}
         </MDTypography>
       </MDBox>
       <form onSubmit={onResponse}>
