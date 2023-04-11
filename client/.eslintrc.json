@@ -1,0 +1,50 @@
+// module.exports = {
+//   parser: '@babel/eslint-parser, babel-plugin-transform-class-properties',
+//   env: {
+//     es6: true,
+//     node: true,
+//     browser: true
+//   },
+//   parserOptions: {
+//     requireConfigFile: false,
+//     ecmaVersion: 6,
+//     sourceType: "module",
+//     babelOptions: {
+//       presets: ["@babel/preset-react"]
+//     },
+//     ecmaFeatures: {
+//       jsx: true
+//     }
+//   },
+//   plugins: ["react"],
+//   extends: [
+//     "eslint:recommended",
+//     "plugin:react/recommended",
+//     "plugin:prettier/recommended"
+//   ]
+// };
+
+{
+  // estree parser
+  "parser": "babel-eslint",
+  "env": {
+      "es6": true,
+      "node": true,
+      "browser": true
+  },
+  "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+          "jsx": true
+      }
+  },
+  "plugins": [
+      "react"
+  ]
+}
