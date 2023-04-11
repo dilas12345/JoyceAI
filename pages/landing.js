@@ -70,7 +70,7 @@ export default function LandingPage(props) {
               <Button
                 color="danger"
                 size="lg"
-                href="auth/login"
+                href="components"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -30,32 +30,16 @@ import SectionExamples from "../pages-sections/Components-Sections/SectionExampl
 import SectionDownload from "/pages-sections/Components-Sections/SectionDownload.js";
 
 import Router from 'next/router'
-import Session from '../utils/session'
 
 import styles from "/styles/jss/nextjs-material-kit/pages/components.js";
-import { response } from "express";
 
 const useStyles = makeStyles(styles);
 
-const  Components= ({props, session}) => {
-
-  const [name, setname] = useState("");
-  const [address, setAddress] = useState("");
-  const [message, setMessage] = useState(null);
-  const [messageStyle, setMessageStyle] = useState(null);
+const  Components= (props) => {
 
   const classes = useStyles();
   const { ...rest } = props;
 
-
-  useEffect(() => {
-    async function checkSession() {
-      if (!session || !session.loggedin) {
-        Router.push('/login')
-      }
-    }
-    checkSession();
-  }, [session, Router]);
 
   // const getProfile = () => {
   //   fetch('/auth/profile', {
@@ -123,15 +107,5 @@ const  Components= ({props, session}) => {
       <Footer />
     </div>
   );
-}
-
-Components.getInitialProps = async ({ req }) => {
-  let session = ''
-  if (req && req.session) {
-    session = req.session
-  } else {
-    session = await Session.getSession()
-  }
-  return { session }
 }
 export default Components;
