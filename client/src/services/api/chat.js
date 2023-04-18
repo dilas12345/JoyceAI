@@ -1,10 +1,8 @@
-import { Configuration, OpenAIApi } from "openai";
 import axios from "axios";
 
 const API_URL = "https://api.openai.com/v1/completions";
- 
 
-const apiKey = "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" //process.env.OPENAI_API_KEY
+const apiKey = process.env.REACT_APP_OPENAI_API_KEY
 
 const headers = {
   Authorization: `Bearer ${apiKey}`,
@@ -24,7 +22,7 @@ const joyceAI = (text) => {
     presence_penalty: 0.6
   };
 
-  console.log("SentInputJoyce==", data, {headers});
+  console.log("SentInputJoyce==", data);
 
   return axios
     .post(API_URL, data, {headers})
