@@ -27,6 +27,7 @@ import EventBus from "../../common/EventBus";
 import AuthService from "../../services/auth-service";
 import UserInput from "layouts/billing/components/UserInput";
 import JoyceResponse from "layouts/billing/components/JoyceResponse";
+import DocumentEdit from "layouts/billing/components/DocumentEdit";
 
 function Dashboard() {
   const currentUser = AuthService.getCurrentUser();
@@ -71,7 +72,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="dark"
                 icon="weekend"
-                title="Bookings"
+                title="Document Generated"
                 count={281}
                 percentage={{
                   color: "success",
@@ -85,7 +86,7 @@ function Dashboard() {
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 icon="leaderboard"
-                title="Today's Users"
+                title="Publications"
                 count="2,300"
                 percentage={{
                   color: "success",
@@ -100,7 +101,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="success"
                 icon="store"
-                title="Revenue"
+                title="Virtual Worlds"
                 count="34k"
                 percentage={{
                   color: "success",
@@ -133,6 +134,13 @@ function Dashboard() {
             </Grid>
             <Grid item xs={12} md={7}>
               <JoyceResponse generatedText={generatedText}/>
+            </Grid>
+          </Grid>
+        </MDBox>
+        <MDBox mb={3}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={7}>
+              <DocumentEdit generatedText={generatedText}/>
             </Grid>
           </Grid>
         </MDBox>
