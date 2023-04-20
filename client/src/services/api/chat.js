@@ -17,18 +17,16 @@ const joyceAI = (text) => {
     prompt: text,
     temperature: 0.9,
     max_tokens: 150,
-    top_p: 1,
-    frequency_penalty: 0,
+    top_p: 1.0,
+    frequency_penalty: 0.8,
     presence_penalty: 0.6
   };
 
-  console.log("SentInputJoyce==", data);
 
   return axios
     .post(API_URL, data, {headers})
     .then((response) => {
-      console.log("Joyce Response==", response);
-      
+      response.data.choices[0].text;
       return response;
     })
     .catch(error => {

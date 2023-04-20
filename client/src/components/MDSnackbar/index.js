@@ -1,19 +1,5 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
+import React, { useState } from 'react';
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-// prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
 // @mui material components
@@ -60,8 +46,8 @@ function MDSnackbar({ color, icon, title, dateTime, content, close, bgWhite, ...
       TransitionComponent={Fade}
       autoHideDuration={5000}
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
+        vertical: "top",
+        horizontal: "center",
       }}
       {...rest}
       action={
@@ -73,7 +59,7 @@ function MDSnackbar({ color, icon, title, dateTime, content, close, bgWhite, ...
       <MDBox
         variant={bgWhite ? "contained" : "gradient"}
         bgColor={bgWhite ? "white" : color}
-        minWidth="21.875rem"
+        minWidth="60.875rem"
         maxWidth="100%"
         shadow="md"
         borderRadius="md"
