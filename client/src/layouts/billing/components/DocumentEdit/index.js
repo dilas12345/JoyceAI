@@ -10,114 +10,103 @@ import MDButton from "components/MDButton";
 import MDSnackbar from "components/MDSnackbar";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
-import {
-  DraftailEditor,
-  createEditorStateFromRaw,
-  serialiseEditorStateToRaw
-} from "draftail";
-import React, { useState } from "react";
-import { Editor, ContentState, EditorState, RichUtils, getDefaultKeyBinding } from "draft-js";
-import linkifyPlugin from "./plugins/linkifyPlugin";
-// import autoEmbedPlugin from "./plugins/autoEmbedPlugin";
-import { INLINE_CONTROL, BLOCK_CONTROL, ENTITY_CONTROL } from "./ui";
 
+import React, { useState, useEffect, useRef } from "react";
+import { EditorState, convertFromHTML, convertToRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import { convertToHTML } from 'draft-convert';
+import DOMPurify from 'dompurify';
 
-import createHashtagPlugin from "draft-js-hashtag-plugin";
-import createMentionPlugin, {
-  defaultSuggestionsFilter
-} from "draft-js-mention-plugin";
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import './Document.css';
 
-import createEmojiPlugin from "draft-js-emoji-plugin";
-import createStickerPlugin from "draft-js-sticker-plugin";
-// import ReadingTime from "./components/ReadingTime";
-import { mentions } from "./plugins/mentions.js";
-
-import { stickers } from "./plugins/stickers";
-const stickerPlugin = createStickerPlugin({
-  stickers: stickers,
-  selectButtonContent: <button>Stickers</button>
-});
-const emojiPlugin = createEmojiPlugin();
-const linkify = linkifyPlugin();
-// const autoEmbed = autoEmbedPlugin();
-const hashtagPlugin = createHashtagPlugin();
-const mentionPlugin = createMentionPlugin({
-  mentions,
-  entityMutability: "IMMUTABLE",
-  mentionComponent: mentionProps => (
-    <span
-      className={mentionProps.className}
-      // eslint-disable-next-line no-alert
-      onClick={() => alert("Clicked on the Mention!")}
-    >
-      {mentionProps.children}
-    </span>
-  ),
-  // theme: mentionsStyles,
-  // positionSuggestions,
-  mentionPrefix: "@",
-  supportWhitespace: false
-});
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { Document, Paragraph, Packer, TextRun } from 'docx';
 
 function DocumentEdit(props, {noGutter}) {
-  console.log("Props Response", props)
   const { generatedText } = props;
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
+  const inputRef = useRef(null);
+
   const [pdfGen, setPdfGen] = useState(false);
   const toggleSnackbar = () => setPdfGen(!pdfGen);
 
-  // const initEditorState = createEditorStateFromRaw(allContentState);
-
-  // const [editorState, setEditorState] = useState(initEditorState);
-  const [suggestionsState, setSuggestionsState] = useState(mentions);
-
-  const [editorState, setEditorState] = React.useState(() =>
-    EditorState.createEmpty()
+  const [editorState, setEditorState] = useState(
+    () => EditorState.createEmpty(),
   );
+  const [convertedContent, setConvertedContent] = useState(null);
 
-  const [contentState, setContentState] = useState(() => ContentState.createEmpty)
+  const onEditorStateChange = (editorState) => {
+    setEditorState(editorState)
+  };
+  useEffect(() => {
+    let html = convertToHTML(editorState.getCurrentContent());
+    setConvertedContent(html);
+  }, [editorState]);
 
-  const editor = React.useRef(null);
-  
-  function focusEditor() {
-    editor.current.focus();
+  function createMarkup(html) {
+    return {
+      __html: DOMPurify.sanitize(html)
+    }
   }
 
-  const handleKeyCommand = (command, state) => {
-    const newState = RichUtils.handleKeyCommand(state, command);
-    if (newState) {
-      setEditorState(newState);
-      return 'handled';
-    }
-    return 'not-handled';
+  const printDocument = () => {
+    const contentState = editorState.getCurrentContent();
+    const rawContentState = convertToRaw(contentState);
+    const plainText = rawContentState.blocks
+      .map(block => {
+        const text = block.text.trim();
+        if (!text) {
+          return '';
+        }
+        const indent = ' '.repeat(block.depth * 4);
+        return `${indent}${text}\n\n`;
+      })
+      .join('');
+
+    html2canvas(inputRef.current).then((canvas) => {
+      const imgData = canvas.toDataURL(plainText);
+      const pdf = new jsPDF('p','pt','a4');
+      pdf.text(50, 20, plainText, { align: 'center' });
+      // pdf.addImage(imgData, "JPEG", 0, 0);
+      pdf.save("download.pdf");
+    });
   };
 
-  const onChange = (state) => {
-    setEditorState(state);
-  };
+  function exportToWord() {
+    const doc = new Document({
+      sections: [
+          {
+              properties: {},
+              children: [
+                  new Paragraph({
+                      children: [
+                          new TextRun("Hello World"),
+                          new TextRun({
+                              text: "Foo Bar",
+                              bold: true,
+                          }),
+                          new TextRun({
+                              text: "\tGithub is the best",
+                              bold: true,
+                          }),
+                      ],
+                  }),
+              ],
+          },
+      ],
+  });
+  
+  // Used to export the file into a .docx file
+  Packer.toBuffer(doc).then((buffer) => {
+      fs.writeFileSync("My Document.docx", buffer);
+  });
+  }
+  
 
-  const onBoldClick = () => {
-    onChange(RichUtils.toggleInlineStyle(editorState, 'BOLD'));
-    editor.current.focus();
-  };
-
-  const myKeyBindingFn = e => {
-    console.log("myKeyBindingFn", e.keyCode);
-    // if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
-    //   return 'myeditor-save';
-    // }
-    return getDefaultKeyBinding(e);
-  };
-
-  const onSearchChange = ({ value }) => {
-    setSuggestionsState(defaultSuggestionsFilter(value, mentions));
-  };
-
-  const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
-  const { MentionSuggestions } = mentionPlugin;
-  const { StickerSelect } = stickerPlugin;
   return (
     <Card sx={{ height: "100%" }}>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={3} px={2}>
@@ -135,9 +124,6 @@ function DocumentEdit(props, {noGutter}) {
           </MDTypography>
         </MDBox>
       </MDBox>
-      <MDButton variant="gradient" buttonColor="info" onClick={toggleSnackbar}>
-        Open Snackbar
-      </MDButton>
       
       <MDSnackbar
         color="info"
@@ -181,78 +167,45 @@ function DocumentEdit(props, {noGutter}) {
                 </MDTypography>
 
                 <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
-                  <MDBox mr={1}>
-                    <MDButton variant="text" color="error" onClick={onBoldClick}>
-                      <Icon>bold</Icon>&nbsp;Bold
-                    </MDButton>
-                  </MDBox>
-                  <MDButton variant="text" color={darkMode ? "white" : "dark"}>
-                    <Icon>edit</Icon>&nbsp;edit
+                  
+                  <MDButton variant="text" color={darkMode ? "white" : "dark"} onClick={exportToWord}>
+                    <Icon>edit</Icon>&nbsp;Word Document
                   </MDButton>
-                  <MDButton variant="text" color={darkMode ? "white" : "dark"}>
+
+                  <MDButton variant="text" color={darkMode ? "white" : "dark"} onClick={printDocument}>
                     <Icon>edit</Icon>&nbsp;PDF
                   </MDButton>
 
                 </MDBox>
+                <MDBox id="divToPrint" ref={inputRef}>
+
+                </MDBox>
               </MDBox>
-              <MDBox mb={1} lineHeight={0} display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
-                <MDTypography variant="caption" color="text">
-                  {/* <Editor
-                    textAlignment
-                    ref={editor}
+              <MDBox mb={1} lineHeight={0}  alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
+                <MDTypography>
+                  <Editor
                     editorState={editorState}
-                    contentState={contentState}
-                    handleKeyCommand={handleKeyCommand}
-                    onChange={onChange}
                     placeholder="Past or Write something!"
-                  /> */}
-                  <DraftailEditor
-                    textAlignment
-                    placeholder="Past or Write something!"
-                    // rawContentState={allContentState}
-                    // onSave={onSave}
-                    editorState={editorState}
-                    onChange={onChange}
-                    stripPastedStyles={false}
-                    enableHorizontalRule={{
-                      description: "Horizontal rule"
+                    onEditorStateChange={onEditorStateChange}
+                    wrapperClassName="wrapper-class"
+                    editorClassName="editor-class"
+                    toolbarClassName="toolbar-class"
+                    toolbar={{
+                      options: ['inline', 'blockType']
                     }}
-                    enableLineBreak={{
-                      description: "Soft line break"
+                    hashtag={{
+                      separator: ' ',
+                      trigger: '#',
                     }}
-                    showUndoControl={{
-                      description: "Undo last change"
+                    mention={{
+                      separator: ' ',
+                      trigger: '@',
+                      suggestions: [
+                        { text: 'JavaScript', value: 'javascript', url: 'js' },
+                        { text: 'Golang', value: 'golang', url: 'go' },
+                      ],
                     }}
-                    showRedoControl={{
-                      description: "Redo last change"
-                    }}
-                    maxListNesting={6}
-                    blockTypes={Object.values(BLOCK_CONTROL)}
-                    inlineStyles={Object.values(INLINE_CONTROL)}
-                    entityTypes={[
-                      ENTITY_CONTROL.IMAGE,
-                      ENTITY_CONTROL.LINK,
-                      ENTITY_CONTROL.EMBED,
-                      ENTITY_CONTROL.DOCUMENT
-                    ]}
-                    plugins={[
-                      // autoEmbed,
-                      linkify,
-                      hashtagPlugin,
-                      mentionPlugin,
-                      emojiPlugin,
-                      stickerPlugin
-                      // focusPlugin,
-                      // resizeablePlugin
-                    ]}
-                    // controls={[ReadingTime]}
-                    keyBindingFn={myKeyBindingFn}
                   />
-                  <MentionSuggestions
-                    onSearchChange={onSearchChange}
-                    suggestions={suggestionsState}
-                  />
-                  <EmojiSuggestions />
                 </MDTypography>
               </MDBox>
             </MDBox>
