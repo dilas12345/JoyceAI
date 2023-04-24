@@ -47,6 +47,7 @@ import SignUp from "layouts/authentication/sign-up";
 
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
+import VirtualReality from "layouts/virtual-reality";
 
 import Login from "auth/login";
 import Register from "auth/register";
@@ -120,6 +121,14 @@ const routes = [
     icon: <Icon fontSize="small">person</Icon>,
     route: "/user-profile",
     component: <UserProfile />,
+  },
+  {
+    type: "examples",
+    name: "Virtual Reality",
+    key: "virtual-reality",
+    icon: <Icon fontSize="small">person</Icon>,
+    route: "/virtual-reality",
+    component: <VirtualReality />,
   },
   {
     type: "examples",

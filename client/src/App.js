@@ -53,6 +53,7 @@ import AuthService from "./services/auth-service";
 
 import EventBus from "./common/EventBus";
 
+import VirtualRoom from "layouts/virtual-room";
 
 export default function App() {
   const authContext = useContext(AuthContext);
@@ -295,6 +296,7 @@ export default function App() {
               }
               key="user-profile"
             />
+            <Route exact path="/vr_playground" element={<VirtualRoom/>}/>
             <Route
               exact
               path="user-management"
