@@ -13,9 +13,6 @@ import { useMaterialUIController } from "context";
 
 import React, { useState, useEffect, useRef } from "react";
 import { EditorState, convertFromHTML, convertToRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
-import { convertToHTML } from 'draft-convert';
-import DOMPurify from 'dompurify';
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './Document.css';
@@ -23,6 +20,9 @@ import './Document.css';
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { Document, Paragraph, Packer, TextRun } from 'docx';
+
+import { Editor } from "@tinymce/tinymce-react"; // tinymce-react is imported as an ES module
+import "./Styles.css";
 
 function DocumentEdit(props, {noGutter}) {
   const { generatedText } = props;
@@ -34,25 +34,14 @@ function DocumentEdit(props, {noGutter}) {
   const [pdfGen, setPdfGen] = useState(false);
   const toggleSnackbar = () => setPdfGen(!pdfGen);
 
-  const [editorState, setEditorState] = useState(
-    () => EditorState.createEmpty(),
-  );
-  const [convertedContent, setConvertedContent] = useState(null);
-
-  const onEditorStateChange = (editorState) => {
-    setEditorState(editorState)
-  };
-  useEffect(() => {
-    let html = convertToHTML(editorState.getCurrentContent());
-    setConvertedContent(html);
-  }, [editorState]);
-
-  function createMarkup(html) {
-    return {
-      __html: DOMPurify.sanitize(html)
+  const editorRef = useRef(null);
+  const log = () => {
+    if (editorRef.current) {
+      console.log(editorRef.current.getContent());
     }
-  }
+  };
 
+  // The PrintDocument in PDF
   const printDocument = () => {
     const contentState = editorState.getCurrentContent();
     const rawContentState = convertToRaw(contentState);
@@ -166,7 +155,7 @@ function DocumentEdit(props, {noGutter}) {
                   To start working on your document, past Joyce's Response here!
                 </MDTypography>
 
-                <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
+                {/* <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
                   
                   <MDButton variant="text" color={darkMode ? "white" : "dark"} onClick={exportToWord}>
                     <Icon>edit</Icon>&nbsp;Word Document
@@ -176,7 +165,7 @@ function DocumentEdit(props, {noGutter}) {
                     <Icon>edit</Icon>&nbsp;PDF
                   </MDButton>
 
-                </MDBox>
+                </MDBox> */}
                 <MDBox id="divToPrint" ref={inputRef}>
 
                 </MDBox>
@@ -184,26 +173,22 @@ function DocumentEdit(props, {noGutter}) {
               <MDBox mb={1} lineHeight={0}  alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
                 <MDTypography>
                   <Editor
-                    editorState={editorState}
-                    placeholder="Past or Write something!"
-                    onEditorStateChange={onEditorStateChange}
-                    wrapperClassName="wrapper-class"
-                    editorClassName="editor-class"
-                    toolbarClassName="toolbar-class"
-                    toolbar={{
-                      options: ['inline', 'blockType']
-                    }}
-                    hashtag={{
-                      separator: ' ',
-                      trigger: '#',
-                    }}
-                    mention={{
-                      separator: ' ',
-                      trigger: '@',
-                      suggestions: [
-                        { text: 'JavaScript', value: 'javascript', url: 'js' },
-                        { text: 'Golang', value: 'golang', url: 'go' },
-                      ],
+                    apiKey="obbqlqa91rkvis4829hrnxluw7i6fp1d1qdd41frnjdkmvxi"
+                    onInit={(evt, editor) => (editorRef.current = editor)}
+                    initialValue="<p>Joyce Document Editor.</p>"
+                    init={{
+                      height: 500,
+                      menubar: false,
+                      plugins:
+                        "powerpaste casechange searchreplace autolink directionality advcode visualblocks visualchars image link media mediaembed codesample table charmap pagebreak nonbreaking anchor tableofcontents insertdatetime advlist lists checklist wordcount tinymcespellchecker editimage help formatpainter permanentpen charmap tinycomments linkchecker emoticons advtable export print autosave",
+                      toolbar:
+                        "undo redo print spellcheckdialog formatpainter | blocks fontfamily fontsize | bold italic underline forecolor backcolor | link image addcomment showcomments  | alignleft aligncenter alignright alignjustify lineheight | checklist bullist numlist indent outdent | removeformat",
+                      height: "700px",
+                      toolbar_sticky: false,
+                      icons: "thin",
+                      skin: "material-classic",
+                      icons: "material",
+                      content_style: "material-classic",
                     }}
                   />
                 </MDTypography>

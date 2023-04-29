@@ -27,13 +27,15 @@ import Testimonials from "./sections/Testimonials";
 import Download from "./sections/Download";
 
 import {init} from "../../vr_playground";
+import MDTypography from "components/MDTypography";
 
 function VirtualReality() {
-  const containerRef = useRef(null);
+  const vr = init()
+  // const containerRef = useRef(null);
 
-  useEffect(()=> {
-    init(containerRef.current);
-  },[]);
+  // useEffect(()=> {
+  //   init(containerRef.current);
+  // },[]);
 
   return (
     <DashboardLayout>
@@ -41,10 +43,11 @@ function VirtualReality() {
       <MDBox mt={8}>
         <MDBox mb={3}>
         <Container>
-          <div ref={containerRef}/>
+          <MDTypography>Hello Joyce World</MDTypography>
+          <div vr/>
         </Container>
-        <Testimonials />
-        <Download />
+        {/* <Testimonials />
+        <Download /> */}
         </MDBox>
       </MDBox>
       <Footer />
